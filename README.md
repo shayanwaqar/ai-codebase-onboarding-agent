@@ -225,21 +225,17 @@ Questions:
 - Where is the application object implemented?
 - How is request handling structured?
 
-## Screenshots
-
-Add screenshots before sharing the repo publicly:
-
-```text
-docs/screenshots/indexing.png
-docs/screenshots/answer-with-citations.png
-docs/screenshots/source-link.png
-```
-
-Suggested screenshots:
+Screenshots
 
 - Repository indexing success state
-- Q&A history with answer and confidence badge
-- Citation cards with GitHub source links
+
+  ![1779761856253](image/README/1779761856253.png)
+- Q&A for the input repo.
+
+  ![1779761912365](image/README/1779761912365.png)
+- Output with Citation cards and GitHub source links (Clicking **Open source** opens GitHub at the exact source lines, pinned to the commit SHA that was indexed.)
+
+  ![1779761959972](image/README/1779761959972.png)
 
 ## Checks
 
@@ -263,15 +259,9 @@ Backend tests use fakes for OpenAI and vector-store behavior where appropriate. 
 
 ## Known Limitations
 
-- Public GitHub repositories only
-- No authentication or private repo support
-- Indexing and asking are synchronous
-- No background job queue or progress polling
-- No streaming responses
-- No multi-repo dashboard
-- No syntax highlighting in citation snippets
-- Chroma is local-only storage for MVP speed
-- Answers depend on retrieved context quality and the selected OpenAI model
+- Public GitHub repositories only (no authentication or private repo support).
+- Chroma is local-only storage for speed.
+- Answers depend on retrieved context quality and the selected OpenAI model.
 
 ## Future Improvements
 
