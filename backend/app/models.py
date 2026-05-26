@@ -1,5 +1,5 @@
 import re
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, field_validator
 
@@ -116,3 +116,45 @@ class RepositoryIndexResponse(BaseModel):
 class RetrievedChunk(BaseModel):
     chunk: CodeChunk
     score: float
+
+
+class AskRequest(BaseModel):
+    question: str
+    top_k: Optional[int] = 5
+
+    @field_validator("question")
+    @classmethod
+    def validate_question(cls, value: str) -> str:
+        stripped = value.strip()
+        if not stripped:
+            raise ValueError("question is required.")
+        return stripped
+
+    @field_validator("top_k")
+    @classmethod
+    def validate_top_k(cls, value: Optional[int]) -> Optional[int]:
+        if value is None:
+            return value
+        if value < 1 or value > 10:
+            raise ValueError("top_k must be between 1 and 10.")
+        return value
+
+
+class SourceCitation(BaseModel):
+    chunk_id: str
+    file_path: str
+    start_line: int
+    end_line: int
+    repo_owner: str
+    repo_name: str
+    commit_sha: str
+    github_url: str
+    snippet: str
+
+
+class AskResponse(BaseModel):
+    repo_id: str
+    question: str
+    answer: str
+    citations: list[SourceCitation]
+    confidence: Literal["low", "medium", "high"]

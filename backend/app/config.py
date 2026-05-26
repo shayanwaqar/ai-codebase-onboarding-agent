@@ -19,6 +19,7 @@ class Settings(BaseModel):
     chunk_max_chars: int = 8_000
     openai_embedding_model: str = "text-embedding-3-small"
     openai_embedding_batch_size: int = 64
+    openai_chat_model: str = "gpt-4o-mini"
     chroma_persist_dir: str = "data/chroma"
     chroma_collection_name: str = "code_chunks"
 
@@ -40,6 +41,7 @@ settings = Settings(
     chunk_max_chars=int(os.getenv("CHUNK_MAX_CHARS", "8000")),
     openai_embedding_model=os.getenv("OPENAI_EMBEDDING_MODEL", "text-embedding-3-small"),
     openai_embedding_batch_size=int(os.getenv("OPENAI_EMBEDDING_BATCH_SIZE", "64")),
+    openai_chat_model=os.getenv("OPENAI_CHAT_MODEL", "gpt-4o-mini"),
     chroma_persist_dir=os.getenv("CHROMA_PERSIST_DIR", "data/chroma"),
     chroma_collection_name=os.getenv("CHROMA_COLLECTION_NAME", "code_chunks"),
 )
