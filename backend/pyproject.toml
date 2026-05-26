@@ -1,0 +1,18 @@
+[project]
+name = "codebase-onboarding-backend"
+version = "0.1.0"
+description = "FastAPI backend for the AI Codebase Onboarding Agent."
+requires-python = ">=3.9"
+dependencies = [
+    "fastapi==0.115.6",
+    "uvicorn[standard]==0.30.6",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest==8.3.4",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

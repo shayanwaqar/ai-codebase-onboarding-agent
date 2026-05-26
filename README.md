@@ -1,0 +1,84 @@
+# AI Codebase Onboarding Agent
+
+An MVP app for indexing public GitHub repositories and answering codebase onboarding questions with source-linked citations.
+
+Milestone 1 includes the local development scaffold only:
+
+- FastAPI backend
+- React + TypeScript frontend
+- Docker Compose development workflow
+- Backend health check at `/health`
+- Frontend landing page with a GitHub repository URL input placeholder
+
+AI answers, repository ingestion, embeddings, and vector search are intentionally not implemented yet.
+
+## Project Structure
+
+```text
+backend/
+  app/
+    main.py
+    config.py
+    models.py
+  tests/
+frontend/
+  src/
+    App.tsx
+    main.tsx
+docker-compose.yml
+```
+
+## Local Development
+
+Copy the example environment files before running locally:
+
+```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+cp frontend/.env.example frontend/.env
+```
+
+Run the full local stack:
+
+```bash
+docker compose up --build
+```
+
+This requires Docker Compose v2. Check availability with:
+
+```bash
+docker compose version
+```
+
+Then open:
+
+- Frontend: http://localhost:5173
+- Backend health check: http://localhost:8000/health
+- Backend API docs: http://localhost:8000/docs
+
+## Backend Only
+
+```bash
+cd backend
+python -m venv .venv
+source .venv/bin/activate
+pip install -e ".[dev]"
+uvicorn app.main:app --reload
+```
+
+## Frontend Only
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+## Checks
+
+```bash
+cd backend && pytest
+cd frontend && npm run lint
+```
+
+The test suite is only scaffolded in Milestone 1. Backend behavior tests start with the indexing and citation logic milestones.
