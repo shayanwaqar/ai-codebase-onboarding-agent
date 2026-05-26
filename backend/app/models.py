@@ -25,6 +25,14 @@ def validate_optional_commit_sha(value: Optional[str]) -> Optional[str]:
     return validate_commit_sha(value)
 
 
+def validate_optional_positive_int(value: Optional[int]) -> Optional[int]:
+    if value is None:
+        return value
+    if value < 1:
+        raise ValueError("value must be at least 1 when provided.")
+    return value
+
+
 class HealthResponse(BaseModel):
     status: str
     app: str
@@ -82,6 +90,11 @@ class CodeChunk(BaseModel):
     @classmethod
     def validate_chunk_commit_sha(cls, value: Optional[str]) -> Optional[str]:
         return validate_optional_commit_sha(value)
+
+    @field_validator("token_count")
+    @classmethod
+    def validate_chunk_token_count(cls, value: Optional[int]) -> Optional[int]:
+        return validate_optional_positive_int(value)
 
 
 class RepositoryChunkResponse(BaseModel):

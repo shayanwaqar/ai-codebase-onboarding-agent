@@ -102,3 +102,23 @@ def test_code_chunk_normalizes_repo_url() -> None:
 
     assert chunk.repo_url == "https://github.com/example/repo"
     assert chunk.token_count == 4
+
+
+def test_code_chunk_rejects_non_positive_token_count() -> None:
+    base_payload = {
+        "chunk_id": "chunk-1",
+        "repo_id": "repo-1",
+        "file_path": "src/app.py",
+        "language": "Python",
+        "extension": ".py",
+        "start_line": 1,
+        "end_line": 1,
+        "content": "print('hello')\n",
+        "char_count": 15,
+    }
+
+    with pytest.raises(ValidationError):
+        CodeChunk(**base_payload, token_count=0)
+
+    with pytest.raises(ValidationError):
+        CodeChunk(**base_payload, token_count=-1)
