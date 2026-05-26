@@ -16,8 +16,9 @@ Current backend ingestion support:
 - Accepts a public GitHub repository URL
 - Clones into a temporary directory
 - Returns extracted text file metadata
+- Backend chunking service preserves file path and line ranges for future citations
 
-AI answers, chunking, embeddings, and vector search are intentionally not implemented yet.
+AI answers, embeddings, and vector search are intentionally not implemented yet.
 
 ## Project Structure
 

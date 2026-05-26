@@ -25,3 +25,21 @@ class RepositoryIngestResponse(BaseModel):
     name: str
     file_count: int
     files: list[FileMetadata]
+
+
+class CodeChunk(BaseModel):
+    chunk_id: str
+    repo_id: str
+    file_path: str
+    language: str
+    extension: str
+    start_line: int
+    end_line: int
+    content: str
+    char_count: int
+
+
+class RepositoryChunkResponse(BaseModel):
+    repo_id: str
+    chunk_count: int
+    chunks: list[CodeChunk]
