@@ -3,7 +3,7 @@ from pathlib import Path
 from typing import Optional
 
 from app.config import settings
-from app.github import clone_repository, parse_github_url
+from app.github import clone_repository, get_current_commit_sha, parse_github_url
 from app.models import FileMetadata, RepositoryIngestResponse
 
 
@@ -62,12 +62,14 @@ def ingest_repository(url: str) -> RepositoryIngestResponse:
     with tempfile.TemporaryDirectory(prefix="codebase-onboarding-") as temp_dir:
         repo_dir = Path(temp_dir) / repository.name
         clone_repository(repository.clone_url, repo_dir)
+        commit_sha = get_current_commit_sha(repo_dir)
         files = extract_repository_files(repo_dir)
 
     return RepositoryIngestResponse(
         repository_url=repository.clone_url,
         owner=repository.owner,
         name=repository.name,
+        commit_sha=commit_sha,
         file_count=len(files),
         files=files,
     )

@@ -1,6 +1,6 @@
 import pytest
 
-from app.chunking import ChunkingConfig, chunk_file, chunk_repository_files
+from app.chunking import ChunkingConfig, build_chunk_id, chunk_file, chunk_repository_files
 from app.models import FileMetadata
 
 
@@ -14,10 +14,14 @@ def make_file(content: str, file_path: str = "src/app.py") -> FileMetadata:
     )
 
 
+def make_config(max_lines: int, overlap_lines: int = 0, max_chars: int = 8_000) -> ChunkingConfig:
+    return ChunkingConfig(max_lines=max_lines, overlap_lines=overlap_lines, max_chars=max_chars)
+
+
 def test_small_file_becomes_one_chunk() -> None:
     file_metadata = make_file("line 1\nline 2\n")
 
-    chunks = chunk_file("repo-1", file_metadata, ChunkingConfig(max_lines=10, overlap_lines=2))
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=10, overlap_lines=2))
 
     assert len(chunks) == 1
     assert chunks[0].start_line == 1
@@ -28,7 +32,7 @@ def test_small_file_becomes_one_chunk() -> None:
 def test_long_file_becomes_multiple_chunks_with_accurate_line_numbers() -> None:
     file_metadata = make_file("".join(f"line {line}\n" for line in range(1, 8)))
 
-    chunks = chunk_file("repo-1", file_metadata, ChunkingConfig(max_lines=3, overlap_lines=0))
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=3))
 
     assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [
         (1, 3),
@@ -41,7 +45,7 @@ def test_long_file_becomes_multiple_chunks_with_accurate_line_numbers() -> None:
 def test_overlap_repeats_trailing_lines_in_next_chunk() -> None:
     file_metadata = make_file("".join(f"line {line}\n" for line in range(1, 8)))
 
-    chunks = chunk_file("repo-1", file_metadata, ChunkingConfig(max_lines=3, overlap_lines=1))
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=3, overlap_lines=1))
 
     assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [
         (1, 3),
@@ -65,9 +69,21 @@ def test_metadata_is_preserved() -> None:
         line_count=2,
     )
 
-    chunks = chunk_file("repo-1", file_metadata, ChunkingConfig(max_lines=10, overlap_lines=0))
+    chunks = chunk_file(
+        "repo-1",
+        file_metadata,
+        make_config(max_lines=10),
+        repo_url="https://github.com/example/repo.git",
+        repo_owner="example",
+        repo_name="repo",
+        commit_sha="abc123",
+    )
 
     assert chunks[0].repo_id == "repo-1"
+    assert chunks[0].repo_url == "https://github.com/example/repo.git"
+    assert chunks[0].repo_owner == "example"
+    assert chunks[0].repo_name == "repo"
+    assert chunks[0].commit_sha == "abc123"
     assert chunks[0].file_path == "docs/setup.md"
     assert chunks[0].language == "Markdown"
     assert chunks[0].extension == ".md"
@@ -81,14 +97,56 @@ def test_chunk_repository_files_returns_chunk_count() -> None:
             make_file("line 1\nline 2\n", "src/app.py"),
             make_file("   \n", "empty.py"),
         ],
-        ChunkingConfig(max_lines=10, overlap_lines=0),
+        make_config(max_lines=10),
+        repo_url="https://github.com/example/repo.git",
+        repo_owner="example",
+        repo_name="repo",
+        commit_sha="abc123",
     )
 
     assert response.repo_id == "repo-1"
     assert response.chunk_count == 1
     assert response.chunks[0].file_path == "src/app.py"
+    assert response.chunks[0].commit_sha == "abc123"
 
 
-def test_invalid_overlap_is_rejected() -> None:
+def test_config_rejects_invalid_values() -> None:
     with pytest.raises(ValueError):
-        chunk_file("repo-1", make_file("line 1\n"), ChunkingConfig(max_lines=2, overlap_lines=2))
+        ChunkingConfig(max_lines=0, overlap_lines=0, max_chars=8_000)
+    with pytest.raises(ValueError):
+        ChunkingConfig(max_lines=2, overlap_lines=0, max_chars=0)
+    with pytest.raises(ValueError):
+        ChunkingConfig(max_lines=2, overlap_lines=-1, max_chars=8_000)
+    with pytest.raises(ValueError):
+        ChunkingConfig(max_lines=2, overlap_lines=2, max_chars=8_000)
+
+
+def test_single_line_exceeding_max_chars_is_force_included() -> None:
+    file_metadata = make_file("this line is longer than max chars\nshort\n")
+
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=10, max_chars=5))
+
+    assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [(1, 1), (2, 2)]
+    assert chunks[0].content == "this line is longer than max chars\n"
+
+
+def test_trailing_blank_lines_do_not_create_empty_chunks() -> None:
+    file_metadata = make_file("line 1\nline 2\n\n\n")
+
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=2))
+
+    assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [(1, 2)]
+    assert chunks[0].content == "line 1\nline 2\n"
+
+
+def test_chunk_id_is_deterministic_and_uses_tuple_boundaries() -> None:
+    chunk_id = build_chunk_id(
+        repo_id="repo:one",
+        commit_sha="abc123",
+        file_path="src/app.py",
+        start_line=1,
+        end_line=5,
+    )
+
+    assert chunk_id == build_chunk_id("repo:one", "abc123", "src/app.py", 1, 5)
+    assert chunk_id != build_chunk_id("repo", "one:abc123", "src/app.py", 1, 5)

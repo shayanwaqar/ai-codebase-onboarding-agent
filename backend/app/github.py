@@ -71,3 +71,23 @@ def clone_repository(clone_url: str, destination: Path) -> None:
     except subprocess.CalledProcessError as exc:
         detail = exc.stderr.strip() or exc.stdout.strip() or "Unable to clone repository."
         raise RepositoryCloneError(detail) from exc
+
+
+def get_current_commit_sha(repo_dir: Path) -> str:
+    try:
+        result = subprocess.run(
+            ["git", "-C", str(repo_dir), "rev-parse", "HEAD"],
+            check=True,
+            capture_output=True,
+            text=True,
+            timeout=settings.git_clone_timeout_seconds,
+        )
+    except subprocess.TimeoutExpired as exc:
+        raise RepositoryCloneError("Timed out while reading repository commit SHA.") from exc
+    except FileNotFoundError as exc:
+        raise RepositoryCloneError("git is not installed or not available on PATH.") from exc
+    except subprocess.CalledProcessError as exc:
+        detail = exc.stderr.strip() or exc.stdout.strip() or "Unable to read repository commit SHA."
+        raise RepositoryCloneError(detail) from exc
+
+    return result.stdout.strip()

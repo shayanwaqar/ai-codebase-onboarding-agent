@@ -1,6 +1,6 @@
 import hashlib
 from dataclasses import dataclass
-from typing import Sequence
+from typing import Optional, Sequence
 
 from app.config import settings
 from app.models import CodeChunk, FileMetadata, RepositoryChunkResponse
@@ -8,20 +8,53 @@ from app.models import CodeChunk, FileMetadata, RepositoryChunkResponse
 
 @dataclass(frozen=True)
 class ChunkingConfig:
-    max_lines: int = settings.chunk_max_lines
-    overlap_lines: int = settings.chunk_overlap_lines
-    max_chars: int = settings.chunk_max_chars
+    max_lines: int
+    overlap_lines: int
+    max_chars: int
+
+    def __post_init__(self) -> None:
+        if self.max_lines < 1:
+            raise ValueError("max_lines must be at least 1.")
+        if self.max_chars < 1:
+            raise ValueError("max_chars must be at least 1.")
+        if self.overlap_lines < 0:
+            raise ValueError("overlap_lines cannot be negative.")
+        if self.overlap_lines >= self.max_lines:
+            raise ValueError("overlap_lines must be smaller than max_lines.")
+
+
+def default_chunking_config() -> ChunkingConfig:
+    return ChunkingConfig(
+        max_lines=settings.chunk_max_lines,
+        overlap_lines=settings.chunk_overlap_lines,
+        max_chars=settings.chunk_max_chars,
+    )
 
 
 def chunk_repository_files(
     repo_id: str,
     files: Sequence[FileMetadata],
-    config: ChunkingConfig = ChunkingConfig(),
+    config: Optional[ChunkingConfig] = None,
+    repo_url: str = "",
+    repo_owner: str = "",
+    repo_name: str = "",
+    commit_sha: str = "",
 ) -> RepositoryChunkResponse:
+    chunking_config = config or default_chunking_config()
     chunks: list[CodeChunk] = []
 
     for file_metadata in files:
-        chunks.extend(chunk_file(repo_id=repo_id, file_metadata=file_metadata, config=config))
+        chunks.extend(
+            chunk_file(
+                repo_id=repo_id,
+                file_metadata=file_metadata,
+                config=chunking_config,
+                repo_url=repo_url,
+                repo_owner=repo_owner,
+                repo_name=repo_name,
+                commit_sha=commit_sha,
+            )
+        )
 
     return RepositoryChunkResponse(repo_id=repo_id, chunk_count=len(chunks), chunks=chunks)
 
@@ -29,9 +62,13 @@ def chunk_repository_files(
 def chunk_file(
     repo_id: str,
     file_metadata: FileMetadata,
-    config: ChunkingConfig = ChunkingConfig(),
+    config: Optional[ChunkingConfig] = None,
+    repo_url: str = "",
+    repo_owner: str = "",
+    repo_name: str = "",
+    commit_sha: str = "",
 ) -> list[CodeChunk]:
-    validate_chunking_config(config)
+    chunking_config = config or default_chunking_config()
 
     if not file_metadata.content.strip():
         return []
@@ -44,7 +81,7 @@ def chunk_file(
     start_index = 0
 
     while start_index < len(lines):
-        end_index = find_chunk_end(lines=lines, start_index=start_index, config=config)
+        end_index = find_chunk_end(lines=lines, start_index=start_index, config=chunking_config)
         content = "".join(lines[start_index:end_index])
 
         if content.strip():
@@ -54,11 +91,16 @@ def chunk_file(
                 CodeChunk(
                     chunk_id=build_chunk_id(
                         repo_id=repo_id,
+                        commit_sha=commit_sha,
                         file_path=file_metadata.file_path,
                         start_line=start_line,
                         end_line=end_line,
                     ),
                     repo_id=repo_id,
+                    repo_url=repo_url,
+                    repo_owner=repo_owner,
+                    repo_name=repo_name,
+                    commit_sha=commit_sha,
                     file_path=file_metadata.file_path,
                     language=file_metadata.language,
                     extension=file_metadata.extension,
@@ -72,7 +114,7 @@ def chunk_file(
         if end_index >= len(lines):
             break
 
-        next_start_index = end_index - config.overlap_lines
+        next_start_index = end_index - chunking_config.overlap_lines
         start_index = next_start_index if next_start_index > start_index else end_index
 
     return chunks
@@ -96,18 +138,13 @@ def find_chunk_end(lines: list[str], start_index: int, config: ChunkingConfig) -
     return end_index
 
 
-def validate_chunking_config(config: ChunkingConfig) -> None:
-    if config.max_lines < 1:
-        raise ValueError("max_lines must be at least 1.")
-    if config.max_chars < 1:
-        raise ValueError("max_chars must be at least 1.")
-    if config.overlap_lines < 0:
-        raise ValueError("overlap_lines cannot be negative.")
-    if config.overlap_lines >= config.max_lines:
-        raise ValueError("overlap_lines must be smaller than max_lines.")
-
-
-def build_chunk_id(repo_id: str, file_path: str, start_line: int, end_line: int) -> str:
-    stable_key = f"{repo_id}:{file_path}:{start_line}:{end_line}"
-    digest = hashlib.sha1(stable_key.encode("utf-8")).hexdigest()
-    return digest[:16]
+def build_chunk_id(
+    repo_id: str,
+    commit_sha: str,
+    file_path: str,
+    start_line: int,
+    end_line: int,
+) -> str:
+    stable_key = repr((repo_id, commit_sha, file_path, start_line, end_line))
+    digest = hashlib.sha256(stable_key.encode("utf-8")).hexdigest()
+    return digest[:24]

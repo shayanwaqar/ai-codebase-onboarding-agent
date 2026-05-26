@@ -23,6 +23,7 @@ class RepositoryIngestResponse(BaseModel):
     repository_url: str
     owner: str
     name: str
+    commit_sha: str
     file_count: int
     files: list[FileMetadata]
 
@@ -30,6 +31,10 @@ class RepositoryIngestResponse(BaseModel):
 class CodeChunk(BaseModel):
     chunk_id: str
     repo_id: str
+    repo_url: str = ""
+    repo_owner: str = ""
+    repo_name: str = ""
+    commit_sha: str = ""
     file_path: str
     language: str
     extension: str
