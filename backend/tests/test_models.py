@@ -31,6 +31,18 @@ def test_repository_ingest_response_rejects_empty_or_short_commit_sha() -> None:
             files=[],
         )
 
+
+def test_repository_ingest_response_rejects_uppercase_commit_sha() -> None:
+    with pytest.raises(ValidationError):
+        RepositoryIngestResponse(
+            repository_url="https://github.com/example/repo",
+            owner="example",
+            name="repo",
+            commit_sha="A" * 40,
+            file_count=0,
+            files=[],
+        )
+
     with pytest.raises(ValidationError):
         RepositoryIngestResponse(
             repository_url="https://github.com/example/repo",

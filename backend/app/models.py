@@ -4,7 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, field_validator
 
 
-COMMIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+COMMIT_SHA_PATTERN = re.compile(r"[0-9a-f]{40}")
 
 
 def validate_commit_sha(value: str) -> str:

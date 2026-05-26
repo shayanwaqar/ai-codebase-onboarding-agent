@@ -74,7 +74,6 @@ def chunk_file(
     commit_sha: Optional[str] = None,
 ) -> list[CodeChunk]:
     chunking_config = config or DEFAULT_CHUNKING_CONFIG
-    web_url = normalize_repo_url(repo_url)
 
     if not file_metadata.content.strip():
         return []
@@ -103,7 +102,7 @@ def chunk_file(
                         end_line=end_line,
                     ),
                     repo_id=repo_id,
-                    repo_url=web_url,
+                    repo_url=repo_url,
                     repo_owner=repo_owner,
                     repo_name=repo_name,
                     commit_sha=commit_sha,
@@ -160,6 +159,7 @@ def build_chunk_id(
 
 
 def normalize_repo_url(repo_url: Optional[str]) -> Optional[str]:
+    """Normalize clone URLs defensively for callers that have not parsed GitHub metadata."""
     if repo_url is None:
         return None
     return repo_url[:-4] if repo_url.endswith(".git") else repo_url

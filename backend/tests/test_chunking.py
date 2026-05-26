@@ -1,6 +1,12 @@
 import pytest
 
-from app.chunking import ChunkingConfig, build_chunk_id, chunk_file, chunk_repository_files
+from app.chunking import (
+    ChunkingConfig,
+    build_chunk_id,
+    chunk_file,
+    chunk_repository_files,
+    normalize_repo_url,
+)
 from app.models import FileMetadata
 
 
@@ -76,7 +82,7 @@ def test_metadata_is_preserved() -> None:
         "repo-1",
         file_metadata,
         make_config(max_lines=10),
-        repo_url="https://github.com/example/repo.git",
+        repo_url="https://github.com/example/repo",
         repo_owner="example",
         repo_name="repo",
         commit_sha=COMMIT_SHA,
@@ -149,6 +155,7 @@ def test_trailing_blank_lines_with_overlap_do_not_create_empty_chunks() -> None:
     chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=3, overlap_lines=1))
 
     assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [(1, 3), (3, 5)]
+    assert chunks[1].content == "line 3\n\n\n"
     assert all(chunk.content.strip() for chunk in chunks)
 
 
@@ -163,3 +170,9 @@ def test_chunk_id_is_deterministic_and_uses_stable_json_boundaries() -> None:
 
     assert chunk_id == build_chunk_id("repo:one", COMMIT_SHA, "src/app's.py", 1, 5)
     assert chunk_id != build_chunk_id("repo", f"one:{COMMIT_SHA}", "src/app's.py", 1, 5)
+
+
+def test_normalize_repo_url_strips_git_suffix_and_preserves_none() -> None:
+    assert normalize_repo_url(None) is None
+    assert normalize_repo_url("https://github.com/example/repo.git") == "https://github.com/example/repo"
+    assert normalize_repo_url("https://github.com/example/repo") == "https://github.com/example/repo"
