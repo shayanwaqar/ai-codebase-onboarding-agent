@@ -66,7 +66,7 @@ def ingest_repository(url: str) -> RepositoryIngestResponse:
         files = extract_repository_files(repo_dir)
 
     return RepositoryIngestResponse(
-        repository_url=repository.clone_url,
+        repository_url=repository.web_url,
         owner=repository.owner,
         name=repository.name,
         commit_sha=commit_sha,

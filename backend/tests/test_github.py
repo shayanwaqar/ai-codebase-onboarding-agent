@@ -8,6 +8,7 @@ def test_parse_github_url_normalizes_clone_url() -> None:
 
     assert repository.owner == "openai"
     assert repository.name == "openai-python"
+    assert repository.web_url == "https://github.com/openai/openai-python"
     assert repository.clone_url == "https://github.com/openai/openai-python.git"
 
 

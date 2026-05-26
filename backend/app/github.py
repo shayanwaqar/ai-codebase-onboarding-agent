@@ -11,7 +11,15 @@ class GitHubUrlError(ValueError):
     pass
 
 
-class RepositoryCloneError(RuntimeError):
+class RepositoryError(RuntimeError):
+    pass
+
+
+class RepositoryCloneError(RepositoryError):
+    pass
+
+
+class RepositoryMetadataError(RepositoryError):
     pass
 
 
@@ -19,6 +27,7 @@ class RepositoryCloneError(RuntimeError):
 class GitHubRepository:
     owner: str
     name: str
+    web_url: str
     clone_url: str
 
 
@@ -51,6 +60,7 @@ def parse_github_url(url: str) -> GitHubRepository:
     return GitHubRepository(
         owner=owner,
         name=repo_name,
+        web_url=f"https://github.com/{owner}/{repo_name}",
         clone_url=f"https://github.com/{owner}/{repo_name}.git",
     )
 
@@ -83,11 +93,11 @@ def get_current_commit_sha(repo_dir: Path) -> str:
             timeout=settings.git_clone_timeout_seconds,
         )
     except subprocess.TimeoutExpired as exc:
-        raise RepositoryCloneError("Timed out while reading repository commit SHA.") from exc
+        raise RepositoryMetadataError("Timed out while reading repository commit SHA.") from exc
     except FileNotFoundError as exc:
-        raise RepositoryCloneError("git is not installed or not available on PATH.") from exc
+        raise RepositoryMetadataError("git is not installed or not available on PATH.") from exc
     except subprocess.CalledProcessError as exc:
         detail = exc.stderr.strip() or exc.stdout.strip() or "Unable to read repository commit SHA."
-        raise RepositoryCloneError(detail) from exc
+        raise RepositoryMetadataError(detail) from exc
 
     return result.stdout.strip()

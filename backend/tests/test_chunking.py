@@ -4,6 +4,9 @@ from app.chunking import ChunkingConfig, build_chunk_id, chunk_file, chunk_repos
 from app.models import FileMetadata
 
 
+COMMIT_SHA = "a" * 40
+
+
 def make_file(content: str, file_path: str = "src/app.py") -> FileMetadata:
     return FileMetadata(
         file_path=file_path,
@@ -76,14 +79,14 @@ def test_metadata_is_preserved() -> None:
         repo_url="https://github.com/example/repo.git",
         repo_owner="example",
         repo_name="repo",
-        commit_sha="abc123",
+        commit_sha=COMMIT_SHA,
     )
 
     assert chunks[0].repo_id == "repo-1"
-    assert chunks[0].repo_url == "https://github.com/example/repo.git"
+    assert chunks[0].repo_url == "https://github.com/example/repo"
     assert chunks[0].repo_owner == "example"
     assert chunks[0].repo_name == "repo"
-    assert chunks[0].commit_sha == "abc123"
+    assert chunks[0].commit_sha == COMMIT_SHA
     assert chunks[0].file_path == "docs/setup.md"
     assert chunks[0].language == "Markdown"
     assert chunks[0].extension == ".md"
@@ -101,13 +104,14 @@ def test_chunk_repository_files_returns_chunk_count() -> None:
         repo_url="https://github.com/example/repo.git",
         repo_owner="example",
         repo_name="repo",
-        commit_sha="abc123",
+        commit_sha=COMMIT_SHA,
     )
 
     assert response.repo_id == "repo-1"
     assert response.chunk_count == 1
     assert response.chunks[0].file_path == "src/app.py"
-    assert response.chunks[0].commit_sha == "abc123"
+    assert response.chunks[0].repo_url == "https://github.com/example/repo"
+    assert response.chunks[0].commit_sha == COMMIT_SHA
 
 
 def test_config_rejects_invalid_values() -> None:
@@ -139,14 +143,23 @@ def test_trailing_blank_lines_do_not_create_empty_chunks() -> None:
     assert chunks[0].content == "line 1\nline 2\n"
 
 
-def test_chunk_id_is_deterministic_and_uses_tuple_boundaries() -> None:
+def test_trailing_blank_lines_with_overlap_do_not_create_empty_chunks() -> None:
+    file_metadata = make_file("line 1\nline 2\nline 3\n\n\n")
+
+    chunks = chunk_file("repo-1", file_metadata, make_config(max_lines=3, overlap_lines=1))
+
+    assert [(chunk.start_line, chunk.end_line) for chunk in chunks] == [(1, 3), (3, 5)]
+    assert all(chunk.content.strip() for chunk in chunks)
+
+
+def test_chunk_id_is_deterministic_and_uses_stable_json_boundaries() -> None:
     chunk_id = build_chunk_id(
         repo_id="repo:one",
-        commit_sha="abc123",
-        file_path="src/app.py",
+        commit_sha=COMMIT_SHA,
+        file_path="src/app's.py",
         start_line=1,
         end_line=5,
     )
 
-    assert chunk_id == build_chunk_id("repo:one", "abc123", "src/app.py", 1, 5)
-    assert chunk_id != build_chunk_id("repo", "one:abc123", "src/app.py", 1, 5)
+    assert chunk_id == build_chunk_id("repo:one", COMMIT_SHA, "src/app's.py", 1, 5)
+    assert chunk_id != build_chunk_id("repo", f"one:{COMMIT_SHA}", "src/app's.py", 1, 5)

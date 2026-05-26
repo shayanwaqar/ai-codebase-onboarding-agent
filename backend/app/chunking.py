@@ -1,4 +1,5 @@
 import hashlib
+import json
 from dataclasses import dataclass
 from typing import Optional, Sequence
 
@@ -31,16 +32,20 @@ def default_chunking_config() -> ChunkingConfig:
     )
 
 
+DEFAULT_CHUNKING_CONFIG = default_chunking_config()
+
+
 def chunk_repository_files(
     repo_id: str,
     files: Sequence[FileMetadata],
     config: Optional[ChunkingConfig] = None,
-    repo_url: str = "",
-    repo_owner: str = "",
-    repo_name: str = "",
-    commit_sha: str = "",
+    repo_url: Optional[str] = None,
+    repo_owner: Optional[str] = None,
+    repo_name: Optional[str] = None,
+    commit_sha: Optional[str] = None,
 ) -> RepositoryChunkResponse:
-    chunking_config = config or default_chunking_config()
+    chunking_config = config or DEFAULT_CHUNKING_CONFIG
+    web_url = normalize_repo_url(repo_url)
     chunks: list[CodeChunk] = []
 
     for file_metadata in files:
@@ -49,7 +54,7 @@ def chunk_repository_files(
                 repo_id=repo_id,
                 file_metadata=file_metadata,
                 config=chunking_config,
-                repo_url=repo_url,
+                repo_url=web_url,
                 repo_owner=repo_owner,
                 repo_name=repo_name,
                 commit_sha=commit_sha,
@@ -63,12 +68,13 @@ def chunk_file(
     repo_id: str,
     file_metadata: FileMetadata,
     config: Optional[ChunkingConfig] = None,
-    repo_url: str = "",
-    repo_owner: str = "",
-    repo_name: str = "",
-    commit_sha: str = "",
+    repo_url: Optional[str] = None,
+    repo_owner: Optional[str] = None,
+    repo_name: Optional[str] = None,
+    commit_sha: Optional[str] = None,
 ) -> list[CodeChunk]:
-    chunking_config = config or default_chunking_config()
+    chunking_config = config or DEFAULT_CHUNKING_CONFIG
+    web_url = normalize_repo_url(repo_url)
 
     if not file_metadata.content.strip():
         return []
@@ -97,7 +103,7 @@ def chunk_file(
                         end_line=end_line,
                     ),
                     repo_id=repo_id,
-                    repo_url=repo_url,
+                    repo_url=web_url,
                     repo_owner=repo_owner,
                     repo_name=repo_name,
                     commit_sha=commit_sha,
@@ -140,11 +146,20 @@ def find_chunk_end(lines: list[str], start_index: int, config: ChunkingConfig) -
 
 def build_chunk_id(
     repo_id: str,
-    commit_sha: str,
+    commit_sha: Optional[str],
     file_path: str,
     start_line: int,
     end_line: int,
 ) -> str:
-    stable_key = repr((repo_id, commit_sha, file_path, start_line, end_line))
+    stable_key = json.dumps(
+        [repo_id, commit_sha, file_path, start_line, end_line],
+        separators=(",", ":"),
+    )
     digest = hashlib.sha256(stable_key.encode("utf-8")).hexdigest()
     return digest[:24]
+
+
+def normalize_repo_url(repo_url: Optional[str]) -> Optional[str]:
+    if repo_url is None:
+        return None
+    return repo_url[:-4] if repo_url.endswith(".git") else repo_url

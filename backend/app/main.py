@@ -2,7 +2,7 @@ from fastapi import FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.github import GitHubUrlError, RepositoryCloneError
+from app.github import GitHubUrlError, RepositoryError
 from app.ingestion import ingest_repository
 from app.models import HealthResponse, RepositoryIngestRequest, RepositoryIngestResponse
 
@@ -37,5 +37,5 @@ def ingest_repository_endpoint(request: RepositoryIngestRequest) -> RepositoryIn
         return ingest_repository(request.url)
     except GitHubUrlError as exc:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=str(exc)) from exc
-    except RepositoryCloneError as exc:
+    except RepositoryError as exc:
         raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail=str(exc)) from exc
