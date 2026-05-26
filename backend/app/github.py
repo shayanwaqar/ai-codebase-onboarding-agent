@@ -28,22 +28,22 @@ _REPO_PART_PATTERN = re.compile(r"^[A-Za-z0-9_.-]+$")
 def parse_github_url(url: str) -> GitHubRepository:
     parsed = urlparse(url.strip())
 
-    if parsed.scheme not in {"http", "https"}:
-        raise GitHubUrlError("Only http and https GitHub URLs are supported.")
+    if parsed.scheme != "https":
+        raise GitHubUrlError("Only https GitHub URLs are supported.")
 
     if parsed.netloc.lower() != "github.com":
         raise GitHubUrlError("Repository URL must use github.com.")
 
     parts = [part for part in parsed.path.strip("/").split("/") if part]
-    if len(parts) < 2:
+    if len(parts) != 2:
         raise GitHubUrlError("Repository URL must include an owner and repository name.")
 
     owner, repo_name = parts[0], parts[1]
-    if not _REPO_PART_PATTERN.match(owner) or not _REPO_PART_PATTERN.match(repo_name):
-        raise GitHubUrlError("Repository owner and name contain unsupported characters.")
-
     if repo_name.endswith(".git"):
         repo_name = repo_name[:-4]
+
+    if not _REPO_PART_PATTERN.match(owner) or not _REPO_PART_PATTERN.match(repo_name):
+        raise GitHubUrlError("Repository owner and name contain unsupported characters.")
 
     if not owner or not repo_name:
         raise GitHubUrlError("Repository owner and name are required.")
