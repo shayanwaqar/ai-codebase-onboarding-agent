@@ -4,6 +4,24 @@ import { askRepository, buildRepoId, indexRepository } from "./api";
 import "./App.css";
 import type { AskResponse, RepositoryIndexResponse } from "./types";
 
+const SAMPLE_REPOS = [
+  {
+    name: "octocat/Hello-World",
+    url: "https://github.com/octocat/Hello-World",
+    questions: ["What does this repository contain?", "What files are available?"],
+  },
+  {
+    name: "psf/requests",
+    url: "https://github.com/psf/requests",
+    questions: ["How is the package organized?", "Where is the public API defined?"],
+  },
+  {
+    name: "pallets/flask",
+    url: "https://github.com/pallets/flask",
+    questions: ["How does routing work?", "Where is the application object implemented?"],
+  },
+];
+
 function App() {
   const [repoUrl, setRepoUrl] = useState("");
   const [repoState, setRepoState] = useState<RepositoryIndexResponse | null>(null);
@@ -113,6 +131,24 @@ function App() {
             </div>
           ) : null}
           {repoError ? <p className="error-message">{repoError}</p> : null}
+
+          <div className="samples">
+            <h3>Sample repos</h3>
+            <div className="sample-grid">
+              {SAMPLE_REPOS.map((sample) => (
+                <article className="sample-card" key={sample.url}>
+                  <button type="button" onClick={() => setRepoUrl(sample.url)} disabled={isIndexing}>
+                    {sample.name}
+                  </button>
+                  <ul>
+                    {sample.questions.map((sampleQuestion) => (
+                      <li key={sampleQuestion}>{sampleQuestion}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
         </section>
 
         <section className="panel" aria-labelledby="chat-heading">

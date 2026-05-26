@@ -2,6 +2,12 @@ __pycache__/
 .pytest_cache/
 .venv/
 data/
+dist/
+build/
+coverage/
+.coverage
+.mypy_cache/
+.ruff_cache/
 *.pyc
 *.egg-info/
 .env
