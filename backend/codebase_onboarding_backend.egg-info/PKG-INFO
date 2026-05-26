@@ -1,9 +1,0 @@
-Metadata-Version: 2.4
-Name: codebase-onboarding-backend
-Version: 0.1.0
-Summary: FastAPI backend for the AI Codebase Onboarding Agent.
-Requires-Python: >=3.9
-Requires-Dist: fastapi==0.115.6
-Requires-Dist: uvicorn[standard]==0.30.6
-Provides-Extra: dev
-Requires-Dist: pytest==8.3.4; extra == "dev"

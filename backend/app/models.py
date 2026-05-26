@@ -101,3 +101,18 @@ class RepositoryChunkResponse(BaseModel):
     repo_id: str
     chunk_count: int
     chunks: list[CodeChunk]
+
+
+class RepositoryIndexRequest(BaseModel):
+    url: str
+
+
+class RepositoryIndexResponse(BaseModel):
+    repo_id: str
+    status: str
+    chunk_count: int
+
+
+class RetrievedChunk(BaseModel):
+    chunk: CodeChunk
+    score: float

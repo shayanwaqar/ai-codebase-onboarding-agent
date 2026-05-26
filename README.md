@@ -97,4 +97,17 @@ cd backend && pytest
 cd frontend && npm run lint
 ```
 
-The test suite is only scaffolded in Milestone 1. Backend behavior tests start with the indexing and citation logic milestones.
+Backend tests cover URL validation, ingestion filtering, chunking, citation metadata, and vector indexing service behavior.
+
+## Embeddings
+
+Backend unit tests use fake embedding providers and do not require `OPENAI_API_KEY`.
+
+Real repository indexing and semantic retrieval require an OpenAI API key:
+
+```bash
+OPENAI_API_KEY=your_key_here
+OPENAI_EMBEDDING_MODEL=text-embedding-3-small
+```
+
+Keep real values in local `.env` files only. Do not commit `.env`.
