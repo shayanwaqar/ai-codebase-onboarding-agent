@@ -225,17 +225,19 @@ Questions:
 - Where is the application object implemented?
 - How is request handling structured?
 
-Screenshots
+## Screenshots
 
 - Repository indexing success state
 
-  ![1779761856253](image/README/1779761856253.png)
+  ![Repository indexing success state](docs/screenshots/indexing-success.png)
+
 - Q&A for the input repo.
 
-  ![1779761912365](image/README/1779761912365.png)
+  ![Question and answer history](docs/screenshots/qa-answer.png)
+
 - Output with Citation cards and GitHub source links (Clicking **Open source** opens GitHub at the exact source lines, pinned to the commit SHA that was indexed.)
 
-  ![1779761959972](image/README/1779761959972.png)
+  ![Citation cards with GitHub source links](docs/screenshots/citation-cards.png)
 
 ## Checks
 
