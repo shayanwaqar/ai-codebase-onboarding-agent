@@ -5,6 +5,7 @@ from typing import Optional, Sequence
 
 from app.config import settings
 from app.models import CodeChunk, FileMetadata, RepositoryChunkResponse
+from app.models import normalize_repo_url as normalize_model_repo_url
 
 
 @dataclass(frozen=True)
@@ -160,6 +161,4 @@ def build_chunk_id(
 
 def normalize_repo_url(repo_url: Optional[str]) -> Optional[str]:
     """Normalize clone URLs defensively for callers that have not parsed GitHub metadata."""
-    if repo_url is None:
-        return None
-    return repo_url[:-4] if repo_url.endswith(".git") else repo_url
+    return normalize_model_repo_url(repo_url)

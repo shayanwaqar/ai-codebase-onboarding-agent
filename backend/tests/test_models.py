@@ -68,6 +68,7 @@ def test_code_chunk_allows_missing_commit_sha_but_validates_when_present() -> No
     )
 
     assert chunk.commit_sha is None
+    assert chunk.token_count is None
 
     with pytest.raises(ValidationError):
         CodeChunk(
@@ -82,3 +83,22 @@ def test_code_chunk_allows_missing_commit_sha_but_validates_when_present() -> No
             content="print('hello')\n",
             char_count=15,
         )
+
+
+def test_code_chunk_normalizes_repo_url() -> None:
+    chunk = CodeChunk(
+        chunk_id="chunk-1",
+        repo_id="repo-1",
+        repo_url="https://github.com/example/repo.git",
+        file_path="src/app.py",
+        language="Python",
+        extension=".py",
+        start_line=1,
+        end_line=1,
+        content="print('hello')\n",
+        char_count=15,
+        token_count=4,
+    )
+
+    assert chunk.repo_url == "https://github.com/example/repo"
+    assert chunk.token_count == 4

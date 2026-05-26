@@ -97,6 +97,19 @@ def test_metadata_is_preserved() -> None:
     assert chunks[0].language == "Markdown"
     assert chunks[0].extension == ".md"
     assert chunks[0].char_count == len("# Setup\nRun tests\n")
+    assert chunks[0].token_count is None
+
+
+def test_chunk_file_defensively_normalizes_repo_url() -> None:
+    chunks = chunk_file(
+        "repo-1",
+        make_file("line 1\n"),
+        make_config(max_lines=10),
+        repo_url="https://github.com/example/repo.git",
+        commit_sha=COMMIT_SHA,
+    )
+
+    assert chunks[0].repo_url == "https://github.com/example/repo"
 
 
 def test_chunk_repository_files_returns_chunk_count() -> None:

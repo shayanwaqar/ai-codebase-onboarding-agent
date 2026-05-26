@@ -4,7 +4,13 @@ from typing import Optional
 from pydantic import BaseModel, field_validator
 
 
-COMMIT_SHA_PATTERN = re.compile(r"[0-9a-f]{40}")
+COMMIT_SHA_PATTERN = re.compile(r"^[0-9a-f]{40}$")
+
+
+def normalize_repo_url(value: Optional[str]) -> Optional[str]:
+    if value is None:
+        return value
+    return value[:-4] if value.endswith(".git") else value
 
 
 def validate_commit_sha(value: str) -> str:
@@ -65,6 +71,12 @@ class CodeChunk(BaseModel):
     end_line: int
     content: str
     char_count: int
+    token_count: Optional[int] = None
+
+    @field_validator("repo_url")
+    @classmethod
+    def normalize_chunk_repo_url(cls, value: Optional[str]) -> Optional[str]:
+        return normalize_repo_url(value)
 
     @field_validator("commit_sha")
     @classmethod
