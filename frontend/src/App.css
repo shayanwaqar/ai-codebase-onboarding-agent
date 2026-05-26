@@ -1,6 +1,6 @@
 :root {
-  color: #172026;
-  background: #f4f7f8;
+  color: #e6edf0;
+  background: #101518;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
@@ -13,6 +13,7 @@
 body {
   margin: 0;
   min-width: 320px;
+  background: #101518;
 }
 
 button,
@@ -54,7 +55,7 @@ button {
 .eyebrow,
 .section-kicker {
   margin: 0 0 8px;
-  color: #2f6673;
+  color: #7ec7d8;
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -71,7 +72,7 @@ p {
 h1 {
   max-width: 820px;
   margin-bottom: 18px;
-  color: #101820;
+  color: #f5f8f9;
   font-size: clamp(2.2rem, 6vw, 4.4rem);
   line-height: 1;
   letter-spacing: 0;
@@ -79,14 +80,14 @@ h1 {
 
 h2 {
   margin-bottom: 0;
-  color: #101820;
+  color: #f0f5f6;
   font-size: 1.25rem;
   letter-spacing: 0;
 }
 
 h3 {
   margin-bottom: 10px;
-  color: #172026;
+  color: #edf4f5;
   font-size: 1rem;
   letter-spacing: 0;
 }
@@ -94,17 +95,17 @@ h3 {
 .summary {
   max-width: 720px;
   margin-bottom: 0;
-  color: #52636b;
+  color: #a8b7bd;
   font-size: 1.04rem;
   line-height: 1.65;
 }
 
 .panel {
   margin-top: 18px;
-  border: 1px solid #d8e1e5;
+  border: 1px solid #2b3a40;
   border-radius: 8px;
   padding: 22px;
-  background: #ffffff;
+  background: #172025;
 }
 
 .panel-heading {
@@ -134,10 +135,10 @@ input,
 textarea {
   width: 100%;
   min-width: 0;
-  border: 1px solid #b8c5ca;
+  border: 1px solid #40535b;
   border-radius: 8px;
-  color: #101820;
-  background: #ffffff;
+  color: #f2f7f8;
+  background: #10181c;
 }
 
 input {
@@ -154,22 +155,22 @@ textarea {
 
 input:focus,
 textarea:focus {
-  border-color: #256f83;
-  outline: 3px solid rgba(37, 111, 131, 0.18);
+  border-color: #7ec7d8;
+  outline: 3px solid rgba(126, 199, 216, 0.18);
 }
 
 input:disabled,
 textarea:disabled {
-  color: #75858c;
-  background: #f2f5f6;
+  color: #7f9097;
+  background: #141d21;
 }
 
 button {
   min-height: 52px;
   border-radius: 8px;
   padding: 0 18px;
-  color: #ffffff;
-  background: #256f83;
+  color: #071114;
+  background: #7ec7d8;
   font-weight: 800;
   cursor: pointer;
 }
@@ -181,7 +182,7 @@ button:disabled {
 
 .status-note {
   margin: 12px 0 0;
-  color: #66777f;
+  color: #91a4ab;
   font-size: 0.92rem;
 }
 
@@ -192,24 +193,24 @@ button:disabled {
   margin-top: 14px;
   border-radius: 8px;
   padding: 12px 14px;
-  color: #18351f;
-  background: #e8f5eb;
+  color: #d9f8e2;
+  background: #183527;
 }
 
 .error-message {
   margin: 12px 0 0;
   border-radius: 8px;
   padding: 12px 14px;
-  color: #7a1f1f;
-  background: #fdeaea;
+  color: #ffd9d9;
+  background: #3d1d1f;
 }
 
 .status-pill {
   flex: 0 0 auto;
   border-radius: 999px;
   padding: 6px 10px;
-  color: #2a3a40;
-  background: #edf2f4;
+  color: #d8e5e8;
+  background: #243238;
   font-size: 0.78rem;
   font-weight: 800;
   text-transform: uppercase;
@@ -217,18 +218,18 @@ button:disabled {
 
 .status-pill.success,
 .status-pill.high {
-  color: #1e4d2b;
-  background: #dff2e4;
+  color: #d8f7df;
+  background: #1f4a2f;
 }
 
 .status-pill.medium {
-  color: #68450b;
-  background: #fff1cf;
+  color: #ffe7b0;
+  background: #4e3716;
 }
 
 .status-pill.low {
-  color: #6f2c2c;
-  background: #fde1df;
+  color: #ffd2cf;
+  background: #4a2424;
 }
 
 .answer-history {
@@ -238,7 +239,7 @@ button:disabled {
 }
 
 .answer-block {
-  border-top: 1px solid #d8e1e5;
+  border-top: 1px solid #2b3a40;
   padding-top: 18px;
 }
 
@@ -257,7 +258,7 @@ button:disabled {
 
 .answer-block p {
   margin-bottom: 20px;
-  color: #28363c;
+  color: #cdd9dd;
   line-height: 1.65;
   white-space: pre-wrap;
 }
@@ -268,10 +269,10 @@ button:disabled {
 }
 
 .citation-card {
-  border: 1px solid #d8e1e5;
+  border: 1px solid #2b3a40;
   border-radius: 8px;
   overflow: hidden;
-  background: #fbfcfd;
+  background: #11191d;
 }
 
 .citation-header {
@@ -279,15 +280,15 @@ button:disabled {
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  border-bottom: 1px solid #d8e1e5;
+  border-bottom: 1px solid #2b3a40;
   padding: 12px 14px;
-  color: #263940;
+  color: #dce8eb;
   font-size: 0.92rem;
   font-weight: 800;
 }
 
 .citation-header a {
-  color: #256f83;
+  color: #8bd5e6;
   text-decoration: none;
 }
 
@@ -300,8 +301,8 @@ pre {
   max-height: 240px;
   overflow: auto;
   padding: 14px;
-  color: #1d2b31;
-  background: #f6f8f9;
+  color: #dce7ea;
+  background: #0d1316;
   font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
   font-size: 0.86rem;
   line-height: 1.55;
