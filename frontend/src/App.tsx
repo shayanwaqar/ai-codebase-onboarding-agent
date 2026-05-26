@@ -10,7 +10,7 @@ function App() {
   const [repoError, setRepoError] = useState("");
   const [isIndexing, setIsIndexing] = useState(false);
   const [question, setQuestion] = useState("");
-  const [answer, setAnswer] = useState<AskResponse | null>(null);
+  const [answers, setAnswers] = useState<AskResponse[]>([]);
   const [askError, setAskError] = useState("");
   const [isAsking, setIsAsking] = useState(false);
 
@@ -20,7 +20,7 @@ function App() {
   async function handleIndexSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setRepoError("");
-    setAnswer(null);
+    setAnswers([]);
     setAskError("");
 
     if (!repoUrl.trim()) {
@@ -56,7 +56,8 @@ function App() {
     setIsAsking(true);
     try {
       const response = await askRepository(repoState.repo_id, question.trim(), 5);
-      setAnswer(response);
+      setAnswers((currentAnswers) => [...currentAnswers, response]);
+      setQuestion("");
     } catch (error) {
       setAskError(error instanceof Error ? error.message : "Failed to answer question.");
     } finally {
@@ -120,7 +121,7 @@ function App() {
               <p className="section-kicker">Step 2</p>
               <h2 id="chat-heading">Ask a question</h2>
             </div>
-            {answer ? <span className={`status-pill ${answer.confidence}`}>{answer.confidence}</span> : null}
+            {answers.length > 0 ? <span className="status-pill">{answers.length} answered</span> : null}
           </div>
 
           <form className="chat-form" onSubmit={handleAskSubmit}>
@@ -143,28 +144,37 @@ function App() {
           {!canAsk ? <p className="status-note">Index a repository to enable questions.</p> : null}
           {askError ? <p className="error-message">{askError}</p> : null}
 
-          {answer ? (
-            <section className="answer-block" aria-label="Answer">
-              <h3>Answer</h3>
-              <p>{answer.answer}</p>
+          {answers.length > 0 ? (
+            <div className="answer-history" aria-label="Answer history">
+              {answers.map((answerItem, answerIndex) => (
+                <section className="answer-block" key={`${answerItem.question}-${answerIndex}`}>
+                  <div className="answer-heading">
+                    <h3>{answerItem.question}</h3>
+                    <span className={`status-pill ${answerItem.confidence}`}>
+                      {answerItem.confidence}
+                    </span>
+                  </div>
+                  <p>{answerItem.answer}</p>
 
-              <div className="citations">
-                <h3>Citations</h3>
-                {answer.citations.map((citation) => (
-                  <article className="citation-card" key={citation.chunk_id}>
-                    <div className="citation-header">
-                      <span>
-                        {citation.file_path}:{citation.start_line}-{citation.end_line}
-                      </span>
-                      <a href={citation.github_url} target="_blank" rel="noreferrer">
-                        Open source
-                      </a>
-                    </div>
-                    <pre>{citation.snippet}</pre>
-                  </article>
-                ))}
-              </div>
-            </section>
+                  <div className="citations">
+                    <h3>Citations</h3>
+                    {answerItem.citations.map((citation) => (
+                      <article className="citation-card" key={`${answerIndex}-${citation.chunk_id}`}>
+                        <div className="citation-header">
+                          <span>
+                            {citation.file_path}:{citation.start_line}-{citation.end_line}
+                          </span>
+                          <a href={citation.github_url} target="_blank" rel="noreferrer">
+                            Open source
+                          </a>
+                        </div>
+                        <pre>{citation.snippet}</pre>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+              ))}
+            </div>
           ) : null}
         </section>
       </section>
