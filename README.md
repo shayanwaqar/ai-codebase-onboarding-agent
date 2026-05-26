@@ -10,7 +10,14 @@ Milestone 1 includes the local development scaffold only:
 - Backend health check at `/health`
 - Frontend landing page with a GitHub repository URL input placeholder
 
-AI answers, repository ingestion, embeddings, and vector search are intentionally not implemented yet.
+Current backend ingestion support:
+
+- `POST /repositories/ingest`
+- Accepts a public GitHub repository URL
+- Clones into a temporary directory
+- Returns extracted text file metadata
+
+AI answers, chunking, embeddings, and vector search are intentionally not implemented yet.
 
 ## Project Structure
 
@@ -55,6 +62,14 @@ Then open:
 - Frontend: http://localhost:5173
 - Backend health check: http://localhost:8000/health
 - Backend API docs: http://localhost:8000/docs
+
+Example ingestion request:
+
+```bash
+curl -X POST http://localhost:8000/repositories/ingest \
+  -H "Content-Type: application/json" \
+  -d '{"url":"https://github.com/octocat/Hello-World"}'
+```
 
 ## Backend Only
 

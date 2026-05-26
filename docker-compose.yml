@@ -3,7 +3,7 @@ services:
     build:
       context: ./backend
     env_file:
-      - ./backend/.env.example
+      - ./backend/.env
     ports:
       - "${BACKEND_PORT:-8000}:8000"
     volumes:
@@ -14,7 +14,7 @@ services:
     build:
       context: ./frontend
     env_file:
-      - ./frontend/.env.example
+      - ./frontend/.env
     ports:
       - "${FRONTEND_PORT:-5173}:5173"
     volumes:
