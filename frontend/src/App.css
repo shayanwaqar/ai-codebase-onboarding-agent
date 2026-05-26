@@ -248,6 +248,37 @@ button:disabled {
   padding-top: 0;
 }
 
+.question-row {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+.question-bubble {
+  width: min(82%, 760px);
+  border: 1px solid #39515a;
+  border-radius: 8px;
+  padding: 12px 14px;
+  color: #eef7f8;
+  background: #203138;
+}
+
+.question-bubble span {
+  display: block;
+  margin-bottom: 6px;
+  color: #8bd5e6;
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.question-bubble p {
+  margin: 0;
+  color: #f1f7f8;
+  font-weight: 700;
+  line-height: 1.45;
+}
+
 .answer-heading {
   display: flex;
   align-items: flex-start;
@@ -327,5 +358,9 @@ pre {
   .citation-header {
     align-items: flex-start;
     flex-direction: column;
+  }
+
+  .question-bubble {
+    width: min(100%, 640px);
   }
 }

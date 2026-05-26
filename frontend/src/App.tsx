@@ -148,11 +148,15 @@ function App() {
             <div className="answer-history" aria-label="Answer history">
               {answers.map((answerItem, answerIndex) => (
                 <section className="answer-block" key={`${answerItem.question}-${answerIndex}`}>
+                  <div className="question-row">
+                    <div className="question-bubble">
+                      <span>You</span>
+                      <p>{answerItem.question}</p>
+                    </div>
+                  </div>
                   <div className="answer-heading">
-                    <h3>{answerItem.question}</h3>
-                    <span className={`status-pill ${answerItem.confidence}`}>
-                      {answerItem.confidence}
-                    </span>
+                    <h3>Answer</h3>
+                    <span className={`status-pill ${answerItem.confidence}`}>{answerItem.confidence}</span>
                   </div>
                   <p>{answerItem.answer}</p>
 
